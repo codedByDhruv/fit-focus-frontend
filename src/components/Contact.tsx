@@ -26,34 +26,43 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+  
     try {
-      // Mock API call - would be replaced with real endpoint
-      const response = await fetch('/api/contact', {
+      const response = await fetch('https://fit-focus-backend.onrender.com/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,  // ← added here
+          message: formData.message,
+        }),
       });
-      
-      // Simulate successful API response
-      // In a real scenario, check if response.ok and parse the actual response
-      setTimeout(() => {
+  
+      if (response.ok) {
         toast({
           title: "Message sent successfully!",
           description: "Thanks for reaching out. I'll get back to you soon.",
         });
-        
+  
         setFormData({
           name: '',
           email: '',
           phone: '',
           message: '',
         });
-        
-        setIsSubmitting(false);
-      }, 1000);
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Something went wrong",
+          description: errorData.message || "Please try again later.",
+          variant: "destructive",
+        });
+      }
+  
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({
@@ -64,7 +73,7 @@ const Contact = () => {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <section id="contact" className="section-padding">
       <div className="container mx-auto">
